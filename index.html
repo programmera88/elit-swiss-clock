@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Плавний Аналоговий Годинник</title>
+    <style>
+        /* Скидання стилів та базові налаштування фону */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #141e30, #243b55);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow: hidden;
+        }
+
+        /* Контейнер годинника (Ефект Glassmorphism) */
+        .clock {
+            position: relative;
+            width: 350px;
+            height: 350px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 50%;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 25px 45px rgba(0, 0, 0, 0.5),
+                        inset 0 5px 15px rgba(255, 255, 255, 0.05);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Центральна точка годинника */
+        .clock::before {
+            content: '';
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            background: #ff2d55;
+            border-radius: 50%;
+            z-index: 100;
+            box-shadow: 0 0 10px rgba(255, 45, 85, 0.8);
+        }
+
+        /* Загальні стилі для стрілок */
+        .hand {
+            position: absolute;
+            display: flex;
+            justify-content: center;
+            transform-origin: bottom center;
+            border-radius: 4px;
+            bottom: 50%; /* Стрілки починаються від центру */
+        }
+
+        /* Годинна стрілка */
+        .hour-hand {
+            width: 8px;
+            height: 80px;
+            background: #ffffff;
+            z-index: 10;
+        }
+
+        /* Хвилинна стрілка */
+        .min-hand {
+            width: 5px;
+            height: 120px;
+            background: #e0e0e0;
+            z-index: 20;
+        }
+
+        /* Секундна стрілка (тонша та яскравіша) */
+        .sec-hand {
+            width: 2px;
+            height: 140px;
+            background: #ff2d55;
+            z-index: 30;
+            border-radius: 0;
+        }
+
+        /* Циферблат: засічки або цифри (додамо ключові точки 12, 3, 6, 9) */
+        .number {
+            position: absolute;
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .n12 { top: 20px; }
+        .n3  { right: 25px; }
+        .n6  { bottom: 20px; }
+        .n9  { left: 25px; }
+    </style>
+</head>
+<body>
+
+    <div class="clock">
+        <!-- Цифри на циферблаті -->
+        <div class="number n12">12</div>
+        <div class="number n3">3</div>
+        <div class="number n6">6</div>
+        <div class="number n9">9</div>
+
+        <!-- Стрілки годинника -->
+        <div class="hand hour-hand" id="hour"></div>
+        <div class="hand min-hand" id="min"></div>
+        <div class="hand sec-hand" id="sec"></div>
+    </div>
+
+    <script>
+        const hourHand = document.getElementById('hour');
+        const minHand = document.getElementById('min');
+        const secHand = document.getElementById('sec');
+
+        function updateClock() {
+            const now = new Date();
+
+            // Отримуємо поточний час з мілісекундами для максимальної плавності
+            const hours = now.getHours();
+            const minutes = now.getMinutes();
+            const seconds = now.getSeconds();
+            const milliseconds = now.getMilliseconds();
+
+            // Обчислюємо точні кути повороту стрілок
+            // Секундна стрілка рухається плавно завдяки додаванню мілісекунд
+            const secondsDegrees = ((seconds + milliseconds / 1000) / 60) * 360;
+            
+            // Хвилинна стрілка плавно зміщується залежно від секунд
+            const minutesDegrees = ((minutes + seconds / 60) / 60) * 360;
+            
+            // Годинна стрілка плавно зміщується залежно від хвилин
+            const hoursDegrees = ((hours % 12 + minutes / 60) / 12) * 360;
+
+            // Застосовуємо стилі трансформації
+            secHand.style.transform = `rotate(${secondsDegrees}deg)`;
+            minHand.style.transform = `rotate(${minutesDegrees}deg)`;
+            hourHand.style.transform = `rotate(${hoursDegrees}deg)`;
+
+            // Викликаємо функцію знову на наступний кадр анімації екрану
+            requestAnimationFrame(updateClock);
+        }
+
+        // Запуск анімації
+        requestAnimationFrame(updateClock);
+    </script>
+</body>
+</html>
